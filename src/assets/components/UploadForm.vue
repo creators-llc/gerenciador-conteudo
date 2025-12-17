@@ -46,20 +46,31 @@ const submitUpload = async () => {
 
         const data = await response.json();
 
-        if (!response.ok)
-            throw new Error(`Erro na API: ${response.statusText}`);
+        if (!response.ok) {
+            throw new Error(
+                data.detail || `Erro na API: ${response.statusText}`,
+            );
+        }
 
         console.log('Upload realizado:', data);
         emit('upload-success', data);
         feedbackType.value = 'success';
     } catch (error: any) {
         let errorMsg = 'Falha ao enviar. Tente novamente.';
-        try {
-            // Tenta extrair mensagem limpa se for JSON
-            const parsed = JSON.parse(error.message);
-            errorMsg = parsed.detail || parsed.message || errorMsg;
-        } catch (e) {
-            errorMsg = error.message || errorMsg;
+
+        if (
+            error.message === 'Failed to fetch' ||
+            error.message.includes('NetworkError')
+        ) {
+            errorMsg =
+                'Erro de Conexão: Não foi possível contatar o servidor. Verifique sua internet ou VPN.';
+        } else {
+            try {
+                const parsed = JSON.parse(error.message);
+                errorMsg = parsed.detail || parsed.message || errorMsg;
+            } catch (e) {
+                errorMsg = error.message || errorMsg;
+            }
         }
 
         console.error('Erro no Upload:', error);

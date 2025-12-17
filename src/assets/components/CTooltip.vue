@@ -159,19 +159,6 @@ onBeforeUnmount(() => {
     border: 1px solid #e5e7eb;
 }
 
-/* .tooltip-dark .arrow-left {
-    border-left: 6px solid #1f2937;
-}
-.tooltip-dark .arrow-right {
-    border-right: 6px solid #1f2937;
-}
-.tooltip-dark .arrow-top {
-    border-top: 6px solid #1f2937;
-}
-.tooltip-dark .arrow-bottom {
-    border-bottom: 6px solid #1f2937;
-} */
-
 .tooltip-dark .arrow-top {
     border-top: 6px solid #1f2937;
     border-left: 6px solid transparent;

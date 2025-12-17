@@ -85,7 +85,7 @@ onUnmounted(() => {
                     </button>
                 </div>
 
-                <div class="c-menu-content px-6">
+                <div class="c-menu-content px-6 pt-6 pb-24">
                     <slot></slot>
                 </div>
             </div>
