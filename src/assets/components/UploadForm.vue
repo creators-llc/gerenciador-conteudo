@@ -70,57 +70,6 @@ const submitUpload = async () => {
         isLoading.value = false;
     }
 };
-
-// --- FUNÇÃO DE MOCK PARA TESTES VISUAIS (Apagar antes de subir para produção) ---
-const runDevTest = () => {
-    console.log('Rodando simulação de API...');
-
-    const mockResponse = [
-        {
-            briefing_id: 'TESTE-123',
-            user_id: 'DEV-TESTER',
-            version: 1,
-            feedback:
-                'Esta é uma resposta simulada para validar o layout. O vídeo parece ótimo, mas faltaram alguns pontos obrigatórios.',
-            checklist: {
-                do: [
-                    {
-                        item: 'Item obrigatório FEITO (Deve ter Check Verde)',
-                        approval: true,
-                        sintese:
-                            'A IA detectou que isso foi feito corretamente.',
-                    },
-                    {
-                        item: 'Item obrigatório NÃO FEITO (Deve ter Círculo Cinza)',
-                        approval: false,
-                        sintese: 'A IA não encontrou este item no vídeo.',
-                    },
-                    {
-                        item: 'Outro item feito (Check Verde)',
-                        approval: true,
-                        sintese:
-                            'A IA detectou que isso foi feito corretamente.',
-                    },
-                ],
-                dont: [
-                    {
-                        item: 'Item proibido (Deve ser apenas texto, sem ícone)',
-                        approval: false,
-                        sintese: 'Este item não deve ter ícone de X nem Check.',
-                    },
-                    {
-                        item: 'Outro item proibido',
-                        approval: false,
-                        sintese: 'Texto explicativo no tooltip.',
-                    },
-                ],
-            },
-        },
-    ];
-
-    // Simula o sucesso emitindo os dados fake
-    emit('upload-success', mockResponse);
-};
 </script>
 
 <template>
@@ -241,19 +190,6 @@ const runDevTest = () => {
                 </span>
                 <span v-else>Enviar para Análise</span>
             </button>
-            <button
-                type="button"
-                @click.prevent="runDevTest"
-                class="w-full mb-3 bg-gray-200 text-gray-700 font-bold py-2 rounded-lg hover:bg-gray-300 transition border border-gray-300 border-dashed"
-            >
-                🧪 Testar Layout (Mock)
-            </button>
-
-            <!-- <button
-                type="submit"
-                :disabled="isLoading"
-                class="w-full bg-primary text-white font-bold py-3 rounded-lg..."
-            ></button> -->
         </form>
     </div>
 </template>
