@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue';
 
-// Definição das Props (Baseado no seu arquivo txt)
 const props = withDefaults(
     defineProps<{
         text: string;
@@ -24,7 +23,6 @@ const props = withDefaults(
 const isVisible = ref(false);
 let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-// Classes Dinâmicas
 const tooltipClasses = computed(() => [
     `tooltip-${props.position}`,
     `tooltip-${props.theme}`,
@@ -34,7 +32,7 @@ const tooltipStyles = computed(() => ({
     animationDelay: `${props.delay}ms`,
 }));
 
-// Métodos
+// Methods
 const showTooltip = () => {
     if (props.disabled) return;
     if (timeoutId) clearTimeout(timeoutId);
@@ -98,27 +96,29 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Converti o SCSS para CSS padrão para garantir compatibilidade */
 .tooltip-container {
     position: relative;
-    display: inline-flex; /* Ajuste para alinhar texto e ícone */
+    display: inline-flex;
     align-items: center;
 }
 
 .tooltip {
     position: absolute;
     z-index: 1000;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: 6px;
     font-size: 12px;
     line-height: 1.4;
     font-weight: 500;
-    white-space: normal; /* Permite quebra de linha se o texto for longo */
+    white-space: normal;
     width: max-content;
-    max-width: 250px; /* Limite de largura */
+    max-width: 250px;
     pointer-events: none;
     opacity: 0;
     animation: fadeIn 0.2s ease-out forwards;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Posições */
@@ -147,42 +147,62 @@ onBeforeUnmount(() => {
     margin-left: 8px;
 }
 
-/* Temas */
 .tooltip-dark {
-    background-color: #333;
+    background-color: #1f2937;
     color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 1px solid #374151;
 }
+
 .tooltip-light {
     background-color: #fff;
     color: #333;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
 }
 
-/* Setas */
-.tooltip-arrow {
-    position: absolute;
-    width: 0;
-    height: 0;
+/* .tooltip-dark .arrow-left {
+    border-left: 6px solid #1f2937;
 }
-
-/* Setas Dark */
+.tooltip-dark .arrow-right {
+    border-right: 6px solid #1f2937;
+}
 .tooltip-dark .arrow-top {
+    border-top: 6px solid #1f2937;
+}
+.tooltip-dark .arrow-bottom {
+    border-bottom: 6px solid #1f2937;
+} */
+
+.tooltip-dark .arrow-top {
+    border-top: 6px solid #1f2937;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
     bottom: -6px;
     left: 50%;
     margin-left: -6px;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid #333;
 }
 .tooltip-dark .arrow-bottom {
+    border-bottom: 6px solid #1f2937;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
     top: -6px;
     left: 50%;
     margin-left: -6px;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid #333;
+}
+.tooltip-dark .arrow-left {
+    border-left: 6px solid #1f2937;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    right: -6px;
+    top: 50%;
+    margin-top: -6px;
+}
+.tooltip-dark .arrow-right {
+    border-right: 6px solid #1f2937;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    left: -6px;
+    top: 50%;
+    margin-top: -6px;
 }
 
 /* Animação */
@@ -190,7 +210,7 @@ onBeforeUnmount(() => {
     from {
         opacity: 0;
         transform: translateX(-50%) translateY(4px);
-    } /* Ajuste leve */
+    }
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);

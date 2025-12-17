@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, onUnmounted } from 'vue';
 
-// Definição das Props
 const props = withDefaults(
     defineProps<{
         modelValue: boolean;
@@ -18,13 +17,11 @@ const props = withDefaults(
     },
 );
 
-// Definição dos Emits
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
     (e: 'close'): void;
 }>();
 
-// Computeds
 const isOpen = computed(() => props.modelValue);
 const positionClass = computed(() => `c-menu-offcanvas--${props.position}`);
 const transitionName = computed(() => `slide-${props.position}`);
@@ -44,7 +41,6 @@ watch(isOpen, (val) => {
     }
 });
 
-// Limpeza ao desmontar
 onUnmounted(() => {
     document.body.style.overflow = '';
 });
@@ -63,10 +59,7 @@ onUnmounted(() => {
                 :style="{ width: width }"
                 :class="positionClass"
             >
-                <div
-                    v-if="showHeader"
-                    class="c-menu-header border-b border-gray-200"
-                >
+                <div v-if="showHeader" class="c-menu-header">
                     <h3 class="text-xl font-bold text-text-main m-0">
                         {{ placename }}
                     </h3>
@@ -92,7 +85,7 @@ onUnmounted(() => {
                     </button>
                 </div>
 
-                <div class="c-menu-content p-6">
+                <div class="c-menu-content px-6">
                     <slot></slot>
                 </div>
             </div>
@@ -130,7 +123,7 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
+    padding: 1rem 1.5rem;
 }
 
 /* Animações */

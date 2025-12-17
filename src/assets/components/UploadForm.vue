@@ -4,14 +4,14 @@ import { ref } from 'vue';
 const emit = defineEmits<{
     (e: 'upload-success', data: any): void;
     (e: 'upload-error', data: any): void;
-    (e: 'menuOffCanvasOpen', data: true): boolean;
 }>();
 
 const briefingId = ref('');
-const userId = ref(''); // MOCKADO por enquanto pois a API exige
+const userId = ref('');
 const selectedFile = ref<File | null>(null);
 const isLoading = ref(false);
 const feedbackMessage = ref('');
+const feedbackType = ref<'success' | 'error' | ''>('');
 
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -20,9 +20,8 @@ const handleFileChange = (event: Event) => {
     }
 };
 
-const feedbackType = ref<'success' | 'error' | ''>('');
-
 const submitUpload = async () => {
+    // Validação básica
     if (!briefingId.value || !userId.value || !selectedFile.value) {
         feedbackMessage.value =
             'Por favor, preencha todos os campos obrigatórios.';
@@ -35,7 +34,6 @@ const submitUpload = async () => {
     feedbackType.value = '';
 
     try {
-        // Montagem do Payload conforme o Swagger
         const formData = new FormData();
         formData.append('file', selectedFile.value);
         formData.append('briefing_id', briefingId.value);
@@ -51,24 +49,77 @@ const submitUpload = async () => {
         if (!response.ok)
             throw new Error(`Erro na API: ${response.statusText}`);
 
-        console.log('Sucesso:', data);
+        console.log('Upload realizado:', data);
         emit('upload-success', data);
-        feedbackMessage.value = 'Vídeo enviado.';
         feedbackType.value = 'success';
     } catch (error: any) {
         let errorMsg = 'Falha ao enviar. Tente novamente.';
         try {
-            //Teste para mensangem mesmo dando erro
-            errorMsg = JSON.parse(error.message);
-        } catch (error) {}
+            // Tenta extrair mensagem limpa se for JSON
+            const parsed = JSON.parse(error.message);
+            errorMsg = parsed.detail || parsed.message || errorMsg;
+        } catch (e) {
+            errorMsg = error.message || errorMsg;
+        }
 
-        console.error('Erro capturado:', error);
+        console.error('Erro no Upload:', error);
         feedbackMessage.value = errorMsg;
         feedbackType.value = 'error';
         emit('upload-error', errorMsg);
     } finally {
         isLoading.value = false;
     }
+};
+
+// --- FUNÇÃO DE MOCK PARA TESTES VISUAIS (Apagar antes de subir para produção) ---
+const runDevTest = () => {
+    console.log('Rodando simulação de API...');
+
+    const mockResponse = [
+        {
+            briefing_id: 'TESTE-123',
+            user_id: 'DEV-TESTER',
+            version: 1,
+            feedback:
+                'Esta é uma resposta simulada para validar o layout. O vídeo parece ótimo, mas faltaram alguns pontos obrigatórios.',
+            checklist: {
+                do: [
+                    {
+                        item: 'Item obrigatório FEITO (Deve ter Check Verde)',
+                        approval: true,
+                        sintese:
+                            'A IA detectou que isso foi feito corretamente.',
+                    },
+                    {
+                        item: 'Item obrigatório NÃO FEITO (Deve ter Círculo Cinza)',
+                        approval: false,
+                        sintese: 'A IA não encontrou este item no vídeo.',
+                    },
+                    {
+                        item: 'Outro item feito (Check Verde)',
+                        approval: true,
+                        sintese:
+                            'A IA detectou que isso foi feito corretamente.',
+                    },
+                ],
+                dont: [
+                    {
+                        item: 'Item proibido (Deve ser apenas texto, sem ícone)',
+                        approval: false,
+                        sintese: 'Este item não deve ter ícone de X nem Check.',
+                    },
+                    {
+                        item: 'Outro item proibido',
+                        approval: false,
+                        sintese: 'Texto explicativo no tooltip.',
+                    },
+                ],
+            },
+        },
+    ];
+
+    // Simula o sucesso emitindo os dados fake
+    emit('upload-success', mockResponse);
 };
 </script>
 
@@ -146,17 +197,6 @@ const submitUpload = async () => {
                 </div>
             </div>
 
-            <!-- <div
-                v-if="feedbackMessage"
-                :class="{
-                    'text-green-600': !feedbackMessage.includes('Erro'),
-                    'text-red-600': feedbackMessage.includes('Erro'),
-                }"
-                class="text-sm font-medium mb-4"
-            >
-                {{ feedbackMessage }}
-            </div> -->
-
             <div
                 v-if="feedbackMessage"
                 class="rounded-lg p-4 flex items-start gap-3 text-sm transition-all duration-300 animate-fade-in"
@@ -201,6 +241,19 @@ const submitUpload = async () => {
                 </span>
                 <span v-else>Enviar para Análise</span>
             </button>
+            <button
+                type="button"
+                @click.prevent="runDevTest"
+                class="w-full mb-3 bg-gray-200 text-gray-700 font-bold py-2 rounded-lg hover:bg-gray-300 transition border border-gray-300 border-dashed"
+            >
+                🧪 Testar Layout (Mock)
+            </button>
+
+            <!-- <button
+                type="submit"
+                :disabled="isLoading"
+                class="w-full bg-primary text-white font-bold py-3 rounded-lg..."
+            ></button> -->
         </form>
     </div>
 </template>
