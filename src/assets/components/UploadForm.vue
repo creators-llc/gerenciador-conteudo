@@ -8,7 +8,7 @@ const emit = defineEmits<{
 }>();
 
 const briefingId = ref('');
-const userId = ref('admin-poc-01'); // MOCKADO por enquanto pois a API exige
+const userId = ref(''); // MOCKADO por enquanto pois a API exige
 const selectedFile = ref<File | null>(null);
 const isLoading = ref(false);
 const feedbackMessage = ref('');
@@ -20,15 +20,19 @@ const handleFileChange = (event: Event) => {
     }
 };
 
+const feedbackType = ref<'success' | 'error' | ''>('');
+
 const submitUpload = async () => {
-    if (!briefingId.value || !selectedFile.value) {
-        alert('Preencha o ID e selecione um arquivo');
+    if (!briefingId.value || !userId.value || !selectedFile.value) {
+        feedbackMessage.value =
+            'Por favor, preencha todos os campos obrigatórios.';
+        feedbackType.value = 'error';
         return;
     }
-    ('');
 
     isLoading.value = true;
     feedbackMessage.value = '';
+    feedbackType.value = '';
 
     try {
         // Montagem do Payload conforme o Swagger
@@ -49,19 +53,19 @@ const submitUpload = async () => {
 
         console.log('Sucesso:', data);
         emit('upload-success', data);
-        emit('menuOffCanvasOpen', data);
-        feedbackMessage.value =
-            'Upload realizado com sucesso! Verifique o console.';
+        feedbackMessage.value = 'Vídeo enviado.';
+        feedbackType.value = 'success';
     } catch (error: any) {
-        let errorMsg = error.message;
+        let errorMsg = 'Falha ao enviar. Tente novamente.';
         try {
             //Teste para mensangem mesmo dando erro
             errorMsg = JSON.parse(error.message);
         } catch (error) {}
 
         console.error('Erro capturado:', error);
+        feedbackMessage.value = errorMsg;
+        feedbackType.value = 'error';
         emit('upload-error', errorMsg);
-        feedbackMessage.value = 'Erro ao enviar. Veja os detalhes';
     } finally {
         isLoading.value = false;
     }
@@ -72,8 +76,8 @@ const submitUpload = async () => {
     <div
         class="bg-white p-6 rounded shadow-md border border-gray-200 max-w-lg mx-auto mt-10"
     >
-        <h2 class="text-lg font-bold mb-6 text-gray-800">
-            Validação de Conteúdo (POC)
+        <h2 class="text-lg font-bold mb-6 text-gray-800 text-center">
+            Validação de Conteúdo
         </h2>
 
         <form @submit.prevent="submitUpload" class="space-y-4">
@@ -86,69 +90,95 @@ const submitUpload = async () => {
                     type="text"
                     placeholder="Cole o ID aqui..."
                     :disabled="isLoading"
-                    class="w-full border text-gray-500 border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100"
+                    class="w-full border text-gray-500 border-gray-300 rounded p-2 focus:ring-2 focus:ring-primary outline-none disabled:bg-gray-100"
                 />
-                <p class="text-xs text-gray-500 mt-1">
-                    o ID que conecta o vídeo as regras da campanha.
-                </p>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    ID do Usuário (Simulado) *
+                    ID do Usuário *
                 </label>
                 <input
                     v-model="userId"
                     type="text"
+                    placeholder="Cole o ID do usuário aqui..."
                     :disabled="isLoading"
-                    class="w-full border border-gray-300 rounded p-2 bg-gray-50 text-gray-500"
+                    class="w-full border focus:ring-2 focus:ring-primary outline-none border-gray-300 rounded p-2 bg-gray-50 text-gray-500"
                 />
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Vídeo do Criador *
-                </label>
-                <input
-                    type="file"
-                    accept="video/*"
-                    @change="handleFileChange"
-                    :disabled="isLoading"
-                    class="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-400 hover:file:bg-indigo-600"
-                />
-                <div
-                    v-if="selectedFile"
-                    class="mt-2 p-2 bg-blue-50 border border-blue-100 rounded text-sm text-blue-800 flex items-center gap-2"
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Vídeo do Criador *</label
                 >
-                    <span class="font-semibold">{{ selectedFile.name }}</span>
-                    <span class="text-xs text-gray-500"
-                        >({{
-                            (selectedFile.size / 1024 / 1024).toFixed(2)
-                        }}
-                        MB)</span
+
+                <div class="flex items-center gap-3">
+                    <label
+                        class="cursor-pointer bg-primary hover:bg-secondary text-white font-medium py-2 px-4 rounded-lg transition-colors shadow-sm whitespace-nowrap"
+                    >
+                        Carregar Vídeo
+                        <input
+                            type="file"
+                            accept="video/*"
+                            @change="handleFileChange"
+                            :disabled="isLoading"
+                            class="hidden"
+                        />
+                    </label>
+
+                    <div
+                        v-if="selectedFile"
+                        class="flex flex-col overflow-hidden"
+                    >
+                        <span
+                            class="text-sm font-semibold text-gray-700 truncate max-w-50"
+                        >
+                            {{ selectedFile.name }}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                            {{ (selectedFile.size / 1024 / 1024).toFixed(2) }}
+                            MB
+                        </span>
+                    </div>
+                    <span v-else class="text-sm text-gray-400 italic"
+                        >Nenhum vídeo selecionado</span
                     >
                 </div>
             </div>
 
-            <div
+            <!-- <div
                 v-if="feedbackMessage"
                 :class="{
-                    'text-': !feedbackMessage.includes('Erro'),
+                    'text-green-600': !feedbackMessage.includes('Erro'),
                     'text-red-600': feedbackMessage.includes('Erro'),
                 }"
-                class="text-sm font-medium"
+                class="text-sm font-medium mb-4"
             >
                 {{ feedbackMessage }}
+            </div> -->
+
+            <div
+                v-if="feedbackMessage"
+                class="rounded-lg p-4 flex items-start gap-3 text-sm transition-all duration-300 animate-fade-in"
+                :class="
+                    feedbackType === 'success'
+                        ? 'text-status-ok'
+                        : 'text-status-nok'
+                "
+            >
+                <div class="flex-1">
+                    {{ feedbackMessage }}
+                </div>
             </div>
 
             <button
                 type="submit"
                 :disabled="isLoading"
-                class="w-full bg-indigo-400 text-white p-2 px-4 rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                class="w-full bg-primary text-white font-bold py-3 rounded-lg px-4 hover:bg-secondary transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center shadow-md"
             >
-                <span v-if="isLoading">
+                <span v-if="isLoading" class="flex items-center gap-2">
                     <svg
-                        class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        class="animate-spin h-5 w-5 text-white"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -169,7 +199,7 @@ const submitUpload = async () => {
                     </svg>
                     Enviando...
                 </span>
-                <span v-else> Enviar para Análise </span>
+                <span v-else>Enviar para Análise</span>
             </button>
         </form>
     </div>
