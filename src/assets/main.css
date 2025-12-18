@@ -1,3 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+    /* Cores Oficiais do Figma */
+    --color-primary: #7553e2; /* Roxo Creators */
+    --color-secondary: #b59dff; /* Roxo Creators */
+    --color-background: #ffffff; /* Fundo Geral */
+    --color-surface: #f9fafb; /* Cinza bem claro para fundos alternativos (ajuste meu) */
+    --color-text-primary: #000000;
+    --color-text-secondary: #7f7f7f;
+    --color-border: #7f7f7f;
+    --color-status-ok: #418a27; /* Verde Sucesso */
+    --color-status-nok: #dc3545; /* Vermelho Erro */
+}
