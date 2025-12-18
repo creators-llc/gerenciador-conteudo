@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/v1/:path*",
+            "destination": "https://creators-agent-backend-667882323038.us-central1.run.app/api/v1/:path*"
+        }
+    ]
+}
